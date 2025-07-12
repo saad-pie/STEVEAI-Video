@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>🎬 AI Video Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>🎬 AnimateDiff Video Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      background: #0f0f0f;
+      background: #121212;
       color: #fff;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: sans-serif;
       text-align: center;
       padding: 2rem;
     }
-    input, button {
-      margin: 1rem;
+    input, textarea, button {
+      margin: 0.5rem;
       padding: 1rem;
-      font-size: 1.1rem;
-      border-radius: 1rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
       border: none;
     }
     input[type="file"] {
@@ -24,44 +24,48 @@
       color: white;
     }
     button {
-      background: linear-gradient(45deg, #4a00e0, #8e2de2);
+      background: linear-gradient(90deg, #ff6a00, #ee0979);
       color: white;
       cursor: pointer;
     }
     video {
-      margin-top: 2rem;
+      margin-top: 1rem;
       max-width: 100%;
       border-radius: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>🎬 AI Video Generator</h1>
-  <p>Upload an image to generate a video using Stable Video Diffusion</p>
-  <input type="file" id="image" accept="image/*" />
-  <br />
+  <h1>🎬 AnimateDiff Generator</h1>
+  <p>Upload an image & prompt to generate video</p>
+
+  <input type="file" id="image" accept="image/*" /><br>
+  <textarea id="prompt" rows="2" cols="40" placeholder="Prompt (e.g., a robot dancing)"></textarea><br>
   <button onclick="generate()">Generate</button>
+
   <div id="status"></div>
   <video id="video" controls hidden></video>
 
   <script>
     async function generate() {
-      const fileInput = document.getElementById("image");
+      const image = document.getElementById("image").files[0];
+      const prompt = document.getElementById("prompt").value;
       const status = document.getElementById("status");
       const video = document.getElementById("video");
 
-      if (!fileInput.files.length) {
-        status.innerText = "❌ Please upload an image first.";
+      if (!image || !prompt) {
+        status.innerText = "❌ Please provide both image and prompt.";
         return;
       }
 
       const formData = new FormData();
-      formData.append("image", fileInput.files[0]);
+      formData.append("image", image);
+      formData.append("prompt", prompt);
 
-      status.innerText = "⏳ Generating video (can take up to 1 min)...";
+      status.innerText = "⏳ Generating... this may take ~1 minute";
       video.hidden = true;
 
-      const res = await fetch("https://7fbdf79b-efdf-4bdf-8224-2f58192a69d3-00-2jzzzvnx5rs6y.pike.replit.dev/generate", {
+      const res = await fetch("https://<your-replit-url>/generate", {
         method: "POST",
         body: formData
       });
