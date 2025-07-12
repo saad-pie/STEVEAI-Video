@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>🎬 AI Video Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0f0f0f;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    input, button {
+      margin: 1rem;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border-radius: 1rem;
+      border: none;
+    }
+    input[type="file"] {
+      background: #222;
+      color: white;
+    }
+    button {
+      background: linear-gradient(45deg, #4a00e0, #8e2de2);
+      color: white;
+      cursor: pointer;
+    }
+    video {
+      margin-top: 2rem;
+      max-width: 100%;
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 AI Video Generator</h1>
+  <p>Upload an image to generate a video using Stable Video Diffusion</p>
+  <input type="file" id="image" accept="image/*" />
+  <br />
+  <button onclick="generate()">Generate</button>
+  <div id="status"></div>
+  <video id="video" controls hidden></video>
+
+  <script>
+    async function generate() {
+      const fileInput = document.getElementById("image");
+      const status = document.getElementById("status");
+      const video = document.getElementById("video");
+
+      if (!fileInput.files.length) {
+        status.innerText = "❌ Please upload an image first.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      status.innerText = "⏳ Generating video (can take up to 1 min)...";
+      video.hidden = true;
+
+      const res = await fetch("https://7fbdf79b-efdf-4bdf-8224-2f58192a69d3-00-2jzzzvnx5rs6y.pike.replit.dev/generate", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (data.video) {
+        video.src = `data:video/mp4;base64,${data.video}`;
+        video.hidden = false;
+        status.innerText = "✅ Done!";
+      } else {
+        status.innerText = "❌ Error: " + data.error;
+      }
+    }
+  </script>
+</body>
+</html>
