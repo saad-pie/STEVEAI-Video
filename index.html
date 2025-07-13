@@ -1,83 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🎬 AnimateDiff Video Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEVEAI-Video Generator</title>
   <style>
     body {
-      background: #121212;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
       color: #fff;
-      font-family: sans-serif;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 2rem;
     }
-    input, textarea, button {
-      margin: 0.5rem;
-      padding: 1rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      border: none;
+    h1 {
+      color: #00ffaa;
     }
-    input[type="file"] {
-      background: #222;
-      color: white;
+    input, button {
+      padding: 0.6rem 1rem;
+      margin: 0.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    input {
+      width: 300px;
     }
     button {
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      color: white;
+      background-color: #00ffaa;
+      color: #000;
       cursor: pointer;
     }
+    button:hover {
+      background-color: #00cc88;
+    }
     video {
-      margin-top: 1rem;
-      max-width: 100%;
-      border-radius: 1rem;
+      margin-top: 2rem;
+      width: 90%;
+      max-width: 720px;
+      border: 2px solid #00ffaa;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>🎬 AnimateDiff Generator</h1>
-  <p>Upload an image & prompt to generate video</p>
-
-  <input type="file" id="image" accept="image/*" /><br>
-  <textarea id="prompt" rows="2" cols="40" placeholder="Prompt (e.g., a robot dancing)"></textarea><br>
-  <button onclick="generate()">Generate</button>
-
+  <h1>🎥 STEVEAI Video Generator</h1>
+  <input type="text" id="prompt" placeholder="Enter your prompt..." />
+  <button onclick="generateVideo()">Generate Video</button>
   <div id="status"></div>
-  <video id="video" controls hidden></video>
+  <video id="video" controls autoplay hidden></video>
 
   <script>
-    async function generate() {
-      const image = document.getElementById("image").files[0];
+    async function generateVideo() {
       const prompt = document.getElementById("prompt").value;
       const status = document.getElementById("status");
       const video = document.getElementById("video");
 
-      if (!image || !prompt) {
-        status.innerText = "❌ Please provide both image and prompt.";
-        return;
-      }
+      if (!prompt) return alert("Please enter a prompt!");
 
-      const formData = new FormData();
-      formData.append("image", image);
-      formData.append("prompt", prompt);
-
-      status.innerText = "⏳ Generating... this may take ~1 minute";
+      status.innerText = "⏳ Generating video...";
       video.hidden = true;
 
-      const res = await fetch("https://<your-replit-url>/generate", {
-        method: "POST",
-        body: formData
-      });
+      try {
+        const response = await fetch("/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
 
-      const data = await res.json();
-
-      if (data.video) {
-        video.src = `data:video/mp4;base64,${data.video}`;
-        video.hidden = false;
-        status.innerText = "✅ Done!";
-      } else {
-        status.innerText = "❌ Error: " + data.error;
+        const data = await response.json();
+        if (data.video_url) {
+          status.innerText = "✅ Video generated!";
+          video.src = data.video_url;
+          video.hidden = false;
+        } else {
+          status.innerText = "❌ Failed to generate video.";
+        }
+      } catch (err) {
+        console.error(err);
+        status.innerText = "❌ Error connecting to server.";
       }
     }
   </script>
